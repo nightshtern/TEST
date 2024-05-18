@@ -17,7 +17,7 @@
 ```sh
 sudo apt install -y ansible
 ```
-После клонирования прокета переходим в директорию проекта и уставливаем роли из файла requirements.yml:
+После клонирования проекта переходим в директорию проекта и уставливаем роли из файла requirements.yml:
 ```
 ansible-galaxy install -r requirements.yml
 ```
