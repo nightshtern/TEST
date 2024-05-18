@@ -1,0 +1,8 @@
+---
+  - name: nginx_role
+    src: https://github.com/geerlingguy/ansible-role-nginx.git
+    version: 3.2.0
+
+  - name: docker_role
+    src: https://github.com/geerlingguy/ansible-role-docker.git
+    version: 7.1.0

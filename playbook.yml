@@ -1,0 +1,92 @@
+#################
+# TEST PLAYBOOK #
+#################
+
+---
+
+- hosts: all
+  become: true
+  roles:
+    - docker_role
+    - nginx_role
+  tasks:
+
+#Создаем папку /var/opt/monitoring/
+
+    - name: ensures /var/opt/monitoring/ dir exists
+      file:
+        path: /var/opt/monitoring
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+
+#Копируем файл Docker-compose
+
+    - name: Copy docker-compose.yml
+      template:
+        src: ./templates/docker-compose.j2
+        dest: /var/opt/monitoring/docker-compose.yml
+        owner: root
+        group: root
+        mode: 0664
+
+#Настраиваем конфиг Nginx
+
+    - name: Copy Nginx config
+      template:
+        src: ./templates/nginx/grafana.j2
+        dest: /etc/nginx/sites-available/grafana.conf
+        owner: root
+        group: root
+        mode: 0664
+
+    - name: Create symlink to sites-available
+      file:
+        src: /etc/nginx/sites-available/grafana.conf
+        dest: /etc/nginx/sites-enabled/grafana.conf
+        state: link
+        owner: root
+        group: root
+        mode: 0664
+
+#Копируем файлы для Grafana datasource
+
+    - name: ensures /opt/monitoring/grafana_datasource dir exists
+      file:
+        path: /var/opt/monitoring/grafana_datasource
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: Copy Grafana datasource
+      template:
+        src: ./templates/grafana/grafana-postgres-datasource.j2
+        dest: /var/opt/monitoring/grafana_datasource/grafana-postgres-datasource.yml
+        owner: root
+        group: root
+        mode: 0664
+
+#Копируем файлы для Grafana dashboards
+
+    - name: Dashboards files copy
+      copy:
+        src: ./configs/grafana/dashboards/{{ item }}
+        dest: /var/opt/monitoring/grafana_dashboards/
+        owner: root
+        group: root
+        mode: 0664
+      with_items:
+        - "{{ grafana_dashboards }}"
+
+# Run docker-compose
+
+    - name: Up docker-compose
+      ansible.builtin.shell: docker compose  up -d
+      args:
+        chdir: /var/opt/monitoring/
+
+#Reload NGINX
+    - name: Reload NGINX
+      ansible.builtin.shell: nginx -s reload

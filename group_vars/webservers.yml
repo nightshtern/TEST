@@ -1,0 +1,10 @@
+---
+server_name: example.com
+docker_install_compose: true
+grafana_admin_passwd: passwd
+postgres_user: grafana
+postgres_passwd: password
+postgres_database: postgres
+grafana_dashboards:
+  - dashboards.yml
+  - connections_db.json

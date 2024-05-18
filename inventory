@@ -1,0 +1,8 @@
+---
+all:
+  children:
+    webservers:
+      hosts:
+        myhost-01:
+          ansible_ssh_host: 192.168.1.252
+          ansible_ssh_user: root
